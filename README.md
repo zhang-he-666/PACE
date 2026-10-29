@@ -1,2 +1,1 @@
-# PACE
-PACE: A Progressive Causal Framework for Action Quality Assessment
+# [IEEE BigData 2026] PACE: Progressive Causal-Order Modeling for Action Quality Assessment
