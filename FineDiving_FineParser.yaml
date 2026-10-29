@@ -1,0 +1,87 @@
+# basic
+bs_train : 2
+bs_test : 1
+workers : 8
+update_iter : 4  # 梯度累积，相当于有效batch 8，降低RL2波动
+max_epoch : 500  # 优化：从400增加到500，更长训练
+warmup_epochs : 8  # 优化：从6增加到8，更长预热
+dist_backend : 'nccl'
+
+# two-stage training strategy
+stage1_epochs : 18  # 更早进入阶段二，评分头与因果模块提前联合优化
+# stage1_epochs : 21  # Stage 1: Train segmenter only (epochs 0-22)
+
+# model
+pretrained_i3d_weight : 'models/model_rgb.pth'
+
+data_root : '/home/hzhang/Demo/FineCausal-main/data/FINADiving_MTL_256s'
+label_path : '/home/hzhang/Demo/FineCausal-main/data/Annotations/fine-grained_annotation_aqa.pkl'
+train_split : '/home/hzhang/Demo/FineCausal-main/data/Annotations/train_split.pkl'
+test_split : '/home/hzhang/Demo/FineCausal-main/data/Annotations/test_split.pkl'
+data_mask_root: '/home/hzhang/Demo/FineCausal-main/data/diving_mask_annotation_gray'
+
+# optimizer
+optimizer: 'AdamW'
+weight_decay : 0.01  # AdamW 标准衰减，配合norm/bias不衰减
+base_lr : 0.00025  # 优化：从0.0003略微降低，更稳定
+lr_factor : 0.15   # 优化：从0.2降低，backbone学习率更小
+base_lr_min : 0.0000005  # 优化：更小的最小学习率
+use_warm_restart : True
+lr_restart_period : 35  # 优化：从40降低，更频繁重启帮助跳出局部最优
+use_huber_loss : True
+huber_delta : 1.0
+use_grad_clip : True
+grad_clip_value : 0.8  # 优化：从1.0降低到0.8，允许更大梯度更新
+label_smoothing : 0.05
+use_auto_restart : True
+
+# others
+seed : 10086
+frame_length : 96
+voter_number : 30  # 测试时多数投票数提升，平滑RL2 (优化：从20增加到30)
+print_freq : 40
+log_freq : 10
+fix_size : 5
+step_num : 3
+prob_tas_threshold : 1.0
+random_choosing : False
+action_number_choosing: True
+DD_choosing: True
+stage_clip_length : 32
+stage_feature_dim : 1024
+stage_reasoner_hidden_dim : 512
+stage_graph_dim : 64
+stage_reasoner_heads : 4
+cuda_device : 1
+resume: True
+freeze_base: False
+temporal_shift_min : -3
+temporal_shift_max : 0
+wandb: False
+test: False
+stage_recon_loss_weight : 0.8  # 
+stage_priority_epochs : 20
+stage_priority_boost : 1.5
+global_causal_loss_weight : 1.0
+causal_reg_weight : 0.08 
+main_task_weight : 10.0  
+feature_fusion_alpha : 0.7
+use_mask_module : False
+mask_loss_weight : 0.0
+
+# ============ Ablation Study Flags ============
+use_5node_subgraph : True
+use_inter_stage_intervention : True
+use_node_F : True
+use_node_B : True
+use_node_A : True
+use_node_M : True
+use_node_S : True
+use_boundary_regression : False  
+
+# ============ 新增优化参数 ============
+decoder_fusion_alpha : 0.5 
+stage_score_fusion_alpha : 0.3 
+use_correlation_loss : False  
+correlation_loss_weight : 0.1  # 相关性损失权重
+
